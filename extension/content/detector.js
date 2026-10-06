@@ -6,6 +6,7 @@
   let observer = null;
   let paused = true;
   let pauseReady = false;
+  let pauseRevision = 0;
 
   function runtimeOk() {
     try {
@@ -142,6 +143,8 @@
 
   function onStorageChanged(changes, area) {
     if (area !== "local" || !changes.paused) return;
+    pauseRevision += 1;
+    pauseReady = true;
     applyPaused(changes.paused.newValue === true);
   }
 
@@ -229,16 +232,23 @@
     /* extension context invalidated */
   }
 
-  async function init() {
+  async function syncPauseState() {
+    const revision = ++pauseRevision;
+    let value;
     try {
       const data = await chrome.storage.local.get("paused");
-      paused = data.paused === true;
+      value = data.paused === true;
     } catch {
-      paused = false;
+      return;
     }
+    if (revision !== pauseRevision) return;
     pauseReady = true;
-    if (!paused) watch();
+    applyPaused(value);
   }
 
-  init();
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) syncPauseState();
+  });
+
+  syncPauseState();
 })();

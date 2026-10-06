@@ -4,7 +4,7 @@ Verified October 6, 2026 with the real installed extension in Chromium 151, plus
 
 ## Browser checks
 
-- Real video and recorded audio playback rates and pitch preservation.
+- Real video and locally generated WAV audio playback rates and pitch preservation.
 - Presets, slider click, exact slower/faster steps, and typing isolation.
 - All Tabs, This Tab, and This Site across matching and different hostnames.
 - Shortcut recording and visible closed-panel speed toast.
@@ -13,13 +13,17 @@ Verified October 6, 2026 with the real installed extension in Chromium 151, plus
 - Session site-speed restoration after reload.
 - Cross-host embedded media and return to idle after iframe removal.
 - Correct session rate on a page containing 101 media elements.
-- 20 no-media panel open/close cycles: after garbage collection, both before and after measured 2 documents, 12 DOM nodes, and 16 JavaScript event listeners. No growth observed.
+- 20 no-media panel open/close cycles: after garbage collection, both before and after measured 2 documents, 12 DOM nodes, and 17 JavaScript event listeners. No growth observed.
+- Deliberately delayed registration replies, rapid media removal/reinsertion, and controller restart return cleanly to idle.
+- Startup pause races and persisted pageshow reconciliation pass deterministic source-execution checks.
+- Back/Forward navigation respects pause/resume changes made while away.
+- A dedicated real BFCache browser run confirms both paused and resumed page restoration.
 - No uncaught page errors during these scenarios.
 - Website and privacy policy images and layout at 1280px and 390px widths.
 
 ## Runtime changes
 
-Coalesced concurrent media registration so large media pages do not exhaust the message rate limit. Guarded late registration replies against controller restarts/removal. Restored the existing toast after panel teardown, and dispose its timer/overlay after it fades. Honor saved preset edits/removal and normalize duplicate preset IDs. Reject site speed writes without a hostname and restore the previous scope after a rejected selection.
+Coalesced concurrent media registration so large media pages do not exhaust the message rate limit. Reconciled pending registration and retraction across controller restarts/removal. Re-read pause state on persisted page restoration and reject stale initial reads. Restored the existing toast after panel teardown, and dispose its timer/overlay after it fades. Honor saved preset edits/removal and normalize duplicate preset IDs. Reject site speed writes without a hostname and restore the previous scope after a rejected selection.
 
 The original panel stylesheet is byte-identical. Controls, layout, default shortcuts, appearance, animations, scopes, and playback range remain the same, apart from restoring broken controls. Brand labels and all brand images now use Rapidplay and the user-selected PNG.
 
@@ -33,6 +37,6 @@ These checks found no remaining security issue or resource growth in the exercis
 
 File: release/Rapidplay-1.0.0.zip
 Runtime files: 10 (plus directory entries), manifest at ZIP root.
-SHA-256: f85f51b8a55c98ae8fe7e05ae9aa2a991e472680827659ef77077cee05c8183b
+SHA-256: cd05f09277c6b6d7ba3112ff701aa185ca70ee8098d1f22d5ac2c7c52f56ac88
 
 All test scripts, profiles, browser downloads, audit logs, and screenshot fixtures remain outside this finalized project.

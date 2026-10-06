@@ -78,6 +78,7 @@ const media = new Set();
 let started = false;
 let announced = false;
 let mediaAnnouncement = null;
+let mediaReannounce = false;
 let controllerGeneration = 0;
 let tornDown = false;
 
@@ -492,19 +493,30 @@ function scheduleNativeSync() {
 
 async function announceMedia() {
   if (paused || tornDown || presentMediaCount() === 0) return;
-  if (mediaAnnouncement) return mediaAnnouncement;
+  if (mediaAnnouncement) {
+    if (!announced) mediaReannounce = true;
+    return mediaAnnouncement;
+  }
   const generation = controllerGeneration;
-  const pending = send({ type: "MEDIA_IN_TAB" }).then(async (state) => {
-    if (!state || state.error || generation !== controllerGeneration) return;
-    if (paused || tornDown || presentMediaCount() === 0) {
-      await send({ type: "MEDIA_GONE" });
+  // Mark the request before yielding so teardown can enqueue a matching retraction.
+  announced = true;
+  const pending = send({ type: "MEDIA_IN_TAB" }).then((state) => {
+    if (generation !== controllerGeneration) return;
+    if (!state || state.error) {
+      announced = false;
       return;
     }
-    announced = true;
+    if (paused || tornDown || presentMediaCount() === 0) return;
     if (state.tabId != null) tabId = state.tabId;
     if (state.hostname) hostname = state.hostname;
   }).finally(() => {
-    if (mediaAnnouncement === pending) mediaAnnouncement = null;
+    if (mediaAnnouncement !== pending) return;
+    mediaAnnouncement = null;
+    const retry = mediaReannounce;
+    mediaReannounce = false;
+    if (retry && !announced && !paused && !tornDown && presentMediaCount() > 0) {
+      announceMedia().catch(() => {});
+    }
   });
   mediaAnnouncement = pending;
   return pending;
@@ -2885,6 +2897,7 @@ export function start(reason, hooks) {
   started = true;
   controllerGeneration += 1;
   mediaAnnouncement = null;
+  mediaReannounce = false;
   paused = Boolean(hooks && hooks.paused);
   panelOpen = false;
   settingsOpen = false;
