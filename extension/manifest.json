@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Rapidplay",
+  "version": "1.0.0",
+  "description": "Control video and audio playback speed. Apply it to all tabs, this tab, or this site. Settings stay on your device.",
+  "minimum_chrome_version": "111",
+  "action": {
+    "default_title": "Rapidplay",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "exclude_matches": [
+        "*://*.spotify.com/*",
+        "*://spotify.com/*"
+      ],
+      "js": [
+        "content/detector.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "ISOLATED"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/controller.js",
+        "content/overlay.css",
+        "shared/defaults.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "homepage_url": "https://zeprius.github.io/Rapidplay/"
+}
