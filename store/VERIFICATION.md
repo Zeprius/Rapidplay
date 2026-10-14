@@ -33,10 +33,16 @@ One API permission (storage); no additional API or host_permissions fields. Stat
 
 These checks found no remaining security issue or resource growth in the exercised scenarios. They are bounded verification, not a guarantee for every website, player, Chrome version, or indefinite session. Chrome 111 is the declared minimum; this run used Chromium 151.
 
+## Icon refresh — October 13, 2026
+
+Replaced the runtime icons, store icon, website mark, and promotional-tile logo with derivatives of the supplied rapidplay-creative-clean-transparent.png. Verified both manifest icon maps resolve to RGBA PNGs at exactly 16×16, 32×32, 48×48, and 128×128; each preserves fully transparent and opaque pixels. Verified the stored source is byte-identical to the supplied PNG, the store icon matches the runtime 128×128 icon, and the promotional tile retains its text. Inspected resized icons against light and dark backgrounds.
+
+Rebuilt the upload ZIP and verified its exact file list, manifest at the root, archive integrity, and byte-for-byte agreement of every packaged file with extension/. Runtime scripts and the manifest are unchanged; the browser behavior checks above refer to the October 6 verification.
+
 ## Upload artifact
 
 File: release/Rapidplay-1.0.0.zip
 Runtime files: 10 (plus directory entries), manifest at ZIP root.
-SHA-256: cd05f09277c6b6d7ba3112ff701aa185ca70ee8098d1f22d5ac2c7c52f56ac88
+SHA-256: 1fce9d68f102346e8dcf8204bab0aa7684686a20e57f68f244806fca942e6cdb
 
 All test scripts, profiles, browser downloads, audit logs, and screenshot fixtures remain outside this finalized project.
